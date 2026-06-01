@@ -1,5 +1,7 @@
 # IKEA BILRESA Dual Button (Matter) - Home Assistant Blueprint
 
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fraw.githubusercontent.com%2Fandre-sam%2Fikea-bilresa-matter-blueprint%2Fmain%2Fbilresa_dual_button_matter.yaml)
+
 Home Assistant automation blueprint for the IKEA BILRESA dual-button remote in Matter mode.
 
 This blueprint is event-entity based (recommended for Matter remotes) and supports:
