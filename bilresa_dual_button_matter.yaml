@@ -19,19 +19,13 @@ blueprint:
       name: Button 1 event entity
       selector:
         entity:
-          filter:
-            - integration: matter
-              domain: event
-              device_class: button
+          domain: event
 
     button2_event:
       name: Button 2 event entity
       selector:
         entity:
-          filter:
-            - integration: matter
-              domain: event
-              device_class: button
+          domain: event
 
     single_press_event_type:
       name: Single press event type
