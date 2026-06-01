@@ -1,0 +1,284 @@
+blueprint:
+  name: IKEA BILRESA Dual Button (Matter)
+  description: >
+    Assign actions to two Matter button event entities from an IKEA BILRESA
+    dual-button remote.
+
+    Supported per button:
+      - single press
+      - double press
+      - long press start
+      - long press release
+      - optional repeat while held (with interval + max repeat safety cap)
+
+    Uses Matter event entities (domain: event, integration: matter).
+  domain: automation
+  source_url: https://github.com/andre-sam/ikea-bilresa-matter-blueprint/blob/main/bilresa_dual_button_matter.yaml
+  input:
+    button1_event:
+      name: Button 1 event entity
+      selector:
+        entity:
+          filter:
+            - integration: matter
+              domain: event
+              device_class: button
+
+    button2_event:
+      name: Button 2 event entity
+      selector:
+        entity:
+          filter:
+            - integration: matter
+              domain: event
+              device_class: button
+
+    single_press_event_type:
+      name: Single press event type
+      description: Usually short_release.
+      default: short_release
+      selector:
+        text:
+
+    double_press_event_type:
+      name: Double press event type
+      description: Usually multi_press_complete.
+      default: multi_press_complete
+      selector:
+        text:
+
+    double_press_count:
+      name: Double press count attribute
+      description: >
+        Expected press count for double-press events. Set to 0 to ignore count
+        and match only by event type.
+      default: 2
+      selector:
+        number:
+          min: 0
+          max: 5
+          step: 1
+
+    long_press_start_event_type:
+      name: Long press start event type
+      description: Usually long_press.
+      default: long_press
+      selector:
+        text:
+
+    long_press_release_event_type:
+      name: Long press release event type
+      description: Usually long_release.
+      default: long_release
+      selector:
+        text:
+
+    repeat_interval_ms:
+      name: Hold-repeat interval (ms)
+      description: Interval between repeated hold actions.
+      default: 200
+      selector:
+        number:
+          min: 50
+          max: 2000
+          step: 10
+          unit_of_measurement: ms
+
+    repeat_max_iterations:
+      name: Hold-repeat max iterations
+      description: >
+        Safety cap so repeat loops cannot run forever if a release event is missed.
+      default: 40
+      selector:
+        number:
+          min: 1
+          max: 500
+          step: 1
+
+    button1_single_action:
+      name: Button 1 - single press action
+      default: []
+      selector:
+        action:
+
+    button1_double_action:
+      name: Button 1 - double press action
+      default: []
+      selector:
+        action:
+
+    button1_long_press_action:
+      name: Button 1 - long press start action
+      default: []
+      selector:
+        action:
+
+    button1_long_release_action:
+      name: Button 1 - long press release action
+      default: []
+      selector:
+        action:
+
+    button1_while_held_action:
+      name: Button 1 - repeat while held action
+      default: []
+      selector:
+        action:
+
+    button2_single_action:
+      name: Button 2 - single press action
+      default: []
+      selector:
+        action:
+
+    button2_double_action:
+      name: Button 2 - double press action
+      default: []
+      selector:
+        action:
+
+    button2_long_press_action:
+      name: Button 2 - long press start action
+      default: []
+      selector:
+        action:
+
+    button2_long_release_action:
+      name: Button 2 - long press release action
+      default: []
+      selector:
+        action:
+
+    button2_while_held_action:
+      name: Button 2 - repeat while held action
+      default: []
+      selector:
+        action:
+
+mode: parallel
+max: 10
+max_exceeded: silent
+
+variables:
+  button1_event: !input button1_event
+  button2_event: !input button2_event
+
+  single_press_event_type: !input single_press_event_type
+  double_press_event_type: !input double_press_event_type
+  double_press_count: !input double_press_count
+  long_press_start_event_type: !input long_press_start_event_type
+  long_press_release_event_type: !input long_press_release_event_type
+
+  repeat_interval_ms: !input repeat_interval_ms
+  repeat_max_iterations: !input repeat_max_iterations
+
+triggers:
+  - trigger: state
+    entity_id: !input button1_event
+    not_from:
+      - unavailable
+    not_to:
+      - unavailable
+      - unknown
+
+  - trigger: state
+    entity_id: !input button2_event
+    not_from:
+      - unavailable
+    not_to:
+      - unavailable
+      - unknown
+
+conditions: []
+
+actions:
+  - variables:
+      pressed_entity: "{{ trigger.entity_id }}"
+      event_type: "{{ trigger.to_state.attributes.event_type | default('') }}"
+      press_count: >
+        {{
+          trigger.to_state.attributes.total_number_of_presses_counted
+            | default(trigger.to_state.attributes.totalNumberOfPressesCounted)
+            | default(trigger.to_state.attributes.presses_counted)
+            | default(0)
+            | int(0)
+        }}
+
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: >
+              {{ pressed_entity == button1_event and event_type == single_press_event_type }}
+        sequence: !input button1_single_action
+
+      - conditions:
+          - condition: template
+            value_template: >
+              {{
+                pressed_entity == button1_event
+                and event_type == double_press_event_type
+                and (double_press_count | int(0) == 0 or press_count == (double_press_count | int(0)))
+              }}
+        sequence: !input button1_double_action
+
+      - conditions:
+          - condition: template
+            value_template: >
+              {{ pressed_entity == button1_event and event_type == long_press_start_event_type }}
+        sequence:
+          - sequence: !input button1_long_press_action
+          - repeat:
+              count: "{{ repeat_max_iterations | int(1) }}"
+              sequence:
+                - delay:
+                    milliseconds: "{{ repeat_interval_ms | int(200) }}"
+                - condition: template
+                  value_template: >
+                    {{ state_attr(button1_event, 'event_type') != long_press_release_event_type }}
+                - sequence: !input button1_while_held_action
+
+      - conditions:
+          - condition: template
+            value_template: >
+              {{ pressed_entity == button1_event and event_type == long_press_release_event_type }}
+        sequence: !input button1_long_release_action
+
+      - conditions:
+          - condition: template
+            value_template: >
+              {{ pressed_entity == button2_event and event_type == single_press_event_type }}
+        sequence: !input button2_single_action
+
+      - conditions:
+          - condition: template
+            value_template: >
+              {{
+                pressed_entity == button2_event
+                and event_type == double_press_event_type
+                and (double_press_count | int(0) == 0 or press_count == (double_press_count | int(0)))
+              }}
+        sequence: !input button2_double_action
+
+      - conditions:
+          - condition: template
+            value_template: >
+              {{ pressed_entity == button2_event and event_type == long_press_start_event_type }}
+        sequence:
+          - sequence: !input button2_long_press_action
+          - repeat:
+              count: "{{ repeat_max_iterations | int(1) }}"
+              sequence:
+                - delay:
+                    milliseconds: "{{ repeat_interval_ms | int(200) }}"
+                - condition: template
+                  value_template: >
+                    {{ state_attr(button2_event, 'event_type') != long_press_release_event_type }}
+                - sequence: !input button2_while_held_action
+
+      - conditions:
+          - condition: template
+            value_template: >
+              {{ pressed_entity == button2_event and event_type == long_press_release_event_type }}
+        sequence: !input button2_long_release_action
+
+    default: []
