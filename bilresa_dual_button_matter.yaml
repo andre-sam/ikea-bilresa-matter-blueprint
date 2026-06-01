@@ -91,61 +91,81 @@ blueprint:
 
     button1_single_action:
       name: Button 1 - single press action
-      default: []
+      default:
+        - variables:
+            noop: true
       selector:
         action:
 
     button1_double_action:
       name: Button 1 - double press action
-      default: []
+      default:
+        - variables:
+            noop: true
       selector:
         action:
 
     button1_long_press_action:
       name: Button 1 - long press start action
-      default: []
+      default:
+        - variables:
+            noop: true
       selector:
         action:
 
     button1_long_release_action:
       name: Button 1 - long press release action
-      default: []
+      default:
+        - variables:
+            noop: true
       selector:
         action:
 
     button1_while_held_action:
       name: Button 1 - repeat while held action
-      default: []
+      default:
+        - variables:
+            noop: true
       selector:
         action:
 
     button2_single_action:
       name: Button 2 - single press action
-      default: []
+      default:
+        - variables:
+            noop: true
       selector:
         action:
 
     button2_double_action:
       name: Button 2 - double press action
-      default: []
+      default:
+        - variables:
+            noop: true
       selector:
         action:
 
     button2_long_press_action:
       name: Button 2 - long press start action
-      default: []
+      default:
+        - variables:
+            noop: true
       selector:
         action:
 
     button2_long_release_action:
       name: Button 2 - long press release action
-      default: []
+      default:
+        - variables:
+            noop: true
       selector:
         action:
 
     button2_while_held_action:
       name: Button 2 - repeat while held action
-      default: []
+      default:
+        - variables:
+            noop: true
       selector:
         action:
 
