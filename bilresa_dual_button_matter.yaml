@@ -29,15 +29,15 @@ blueprint:
 
     single_press_event_type:
       name: Single press event type
-      description: Usually short_release.
-      default: short_release
+      description: Matter BILRESA fires multi_press_1 for a single press.
+      default: multi_press_1
       selector:
         text:
 
     double_press_event_type:
       name: Double press event type
-      description: Usually multi_press_complete.
-      default: multi_press_complete
+      description: Matter BILRESA fires multi_press_2 for a double press.
+      default: multi_press_2
       selector:
         text:
 
@@ -45,8 +45,9 @@ blueprint:
       name: Double press count attribute
       description: >
         Expected press count for double-press events. Set to 0 to ignore count
-        and match only by event type.
-      default: 2
+        and match only by event type (recommended when the count is already
+        encoded in the event name, e.g. multi_press_2).
+      default: 0
       selector:
         number:
           min: 0
@@ -203,9 +204,7 @@ actions:
           - condition: template
             value_template: >
               {{ pressed_entity == button1_event and event_type == single_press_event_type }}
-        sequence:
-          - choose: []
-            default: !input button1_single_action
+        sequence: !input button1_single_action
 
       - conditions:
           - condition: template
@@ -215,17 +214,14 @@ actions:
                 and event_type == double_press_event_type
                 and (double_press_count | int(0) == 0 or press_count == (double_press_count | int(0)))
               }}
-        sequence:
-          - choose: []
-            default: !input button1_double_action
+        sequence: !input button1_double_action
 
       - conditions:
           - condition: template
             value_template: >
               {{ pressed_entity == button1_event and event_type == long_press_start_event_type }}
         sequence:
-          - choose: []
-            default: !input button1_long_press_action
+          - sequence: !input button1_long_press_action
           - repeat:
               count: "{{ repeat_max_iterations | int(1) }}"
               sequence:
@@ -234,24 +230,19 @@ actions:
                 - condition: template
                   value_template: >
                     {{ state_attr(button1_event, 'event_type') != long_press_release_event_type }}
-                - choose: []
-                  default: !input button1_while_held_action
+                - sequence: !input button1_while_held_action
 
       - conditions:
           - condition: template
             value_template: >
               {{ pressed_entity == button1_event and event_type == long_press_release_event_type }}
-        sequence:
-          - choose: []
-            default: !input button1_long_release_action
+        sequence: !input button1_long_release_action
 
       - conditions:
           - condition: template
             value_template: >
               {{ pressed_entity == button2_event and event_type == single_press_event_type }}
-        sequence:
-          - choose: []
-            default: !input button2_single_action
+        sequence: !input button2_single_action
 
       - conditions:
           - condition: template
@@ -261,17 +252,14 @@ actions:
                 and event_type == double_press_event_type
                 and (double_press_count | int(0) == 0 or press_count == (double_press_count | int(0)))
               }}
-        sequence:
-          - choose: []
-            default: !input button2_double_action
+        sequence: !input button2_double_action
 
       - conditions:
           - condition: template
             value_template: >
               {{ pressed_entity == button2_event and event_type == long_press_start_event_type }}
         sequence:
-          - choose: []
-            default: !input button2_long_press_action
+          - sequence: !input button2_long_press_action
           - repeat:
               count: "{{ repeat_max_iterations | int(1) }}"
               sequence:
@@ -280,15 +268,12 @@ actions:
                 - condition: template
                   value_template: >
                     {{ state_attr(button2_event, 'event_type') != long_press_release_event_type }}
-                - choose: []
-                  default: !input button2_while_held_action
+                - sequence: !input button2_while_held_action
 
       - conditions:
           - condition: template
             value_template: >
               {{ pressed_entity == button2_event and event_type == long_press_release_event_type }}
-        sequence:
-          - choose: []
-            default: !input button2_long_release_action
+        sequence: !input button2_long_release_action
 
     default: []

@@ -39,8 +39,8 @@ https://raw.githubusercontent.com/andre-sam/ikea-bilresa-matter-blueprint/main/b
 
 Different firmware/controller combinations can vary slightly in naming. Defaults are set for common Matter button behavior:
 
-- single: `short_release`
-- double: `multi_press_complete` with count `2`
+- single: `multi_press_1`
+- double: `multi_press_2`
 - hold start: `long_press`
 - hold release: `long_release`
 
