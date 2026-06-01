@@ -91,81 +91,61 @@ blueprint:
 
     button1_single_action:
       name: Button 1 - single press action
-      default:
-        - variables:
-            noop: true
+      default: []
       selector:
         action:
 
     button1_double_action:
       name: Button 1 - double press action
-      default:
-        - variables:
-            noop: true
+      default: []
       selector:
         action:
 
     button1_long_press_action:
       name: Button 1 - long press start action
-      default:
-        - variables:
-            noop: true
+      default: []
       selector:
         action:
 
     button1_long_release_action:
       name: Button 1 - long press release action
-      default:
-        - variables:
-            noop: true
+      default: []
       selector:
         action:
 
     button1_while_held_action:
       name: Button 1 - repeat while held action
-      default:
-        - variables:
-            noop: true
+      default: []
       selector:
         action:
 
     button2_single_action:
       name: Button 2 - single press action
-      default:
-        - variables:
-            noop: true
+      default: []
       selector:
         action:
 
     button2_double_action:
       name: Button 2 - double press action
-      default:
-        - variables:
-            noop: true
+      default: []
       selector:
         action:
 
     button2_long_press_action:
       name: Button 2 - long press start action
-      default:
-        - variables:
-            noop: true
+      default: []
       selector:
         action:
 
     button2_long_release_action:
       name: Button 2 - long press release action
-      default:
-        - variables:
-            noop: true
+      default: []
       selector:
         action:
 
     button2_while_held_action:
       name: Button 2 - repeat while held action
-      default:
-        - variables:
-            noop: true
+      default: []
       selector:
         action:
 
@@ -223,7 +203,9 @@ actions:
           - condition: template
             value_template: >
               {{ pressed_entity == button1_event and event_type == single_press_event_type }}
-        sequence: !input button1_single_action
+        sequence:
+          - choose: []
+            default: !input button1_single_action
 
       - conditions:
           - condition: template
@@ -233,14 +215,17 @@ actions:
                 and event_type == double_press_event_type
                 and (double_press_count | int(0) == 0 or press_count == (double_press_count | int(0)))
               }}
-        sequence: !input button1_double_action
+        sequence:
+          - choose: []
+            default: !input button1_double_action
 
       - conditions:
           - condition: template
             value_template: >
               {{ pressed_entity == button1_event and event_type == long_press_start_event_type }}
         sequence:
-          - sequence: !input button1_long_press_action
+          - choose: []
+            default: !input button1_long_press_action
           - repeat:
               count: "{{ repeat_max_iterations | int(1) }}"
               sequence:
@@ -249,19 +234,24 @@ actions:
                 - condition: template
                   value_template: >
                     {{ state_attr(button1_event, 'event_type') != long_press_release_event_type }}
-                - sequence: !input button1_while_held_action
+                - choose: []
+                  default: !input button1_while_held_action
 
       - conditions:
           - condition: template
             value_template: >
               {{ pressed_entity == button1_event and event_type == long_press_release_event_type }}
-        sequence: !input button1_long_release_action
+        sequence:
+          - choose: []
+            default: !input button1_long_release_action
 
       - conditions:
           - condition: template
             value_template: >
               {{ pressed_entity == button2_event and event_type == single_press_event_type }}
-        sequence: !input button2_single_action
+        sequence:
+          - choose: []
+            default: !input button2_single_action
 
       - conditions:
           - condition: template
@@ -271,14 +261,17 @@ actions:
                 and event_type == double_press_event_type
                 and (double_press_count | int(0) == 0 or press_count == (double_press_count | int(0)))
               }}
-        sequence: !input button2_double_action
+        sequence:
+          - choose: []
+            default: !input button2_double_action
 
       - conditions:
           - condition: template
             value_template: >
               {{ pressed_entity == button2_event and event_type == long_press_start_event_type }}
         sequence:
-          - sequence: !input button2_long_press_action
+          - choose: []
+            default: !input button2_long_press_action
           - repeat:
               count: "{{ repeat_max_iterations | int(1) }}"
               sequence:
@@ -287,12 +280,15 @@ actions:
                 - condition: template
                   value_template: >
                     {{ state_attr(button2_event, 'event_type') != long_press_release_event_type }}
-                - sequence: !input button2_while_held_action
+                - choose: []
+                  default: !input button2_while_held_action
 
       - conditions:
           - condition: template
             value_template: >
               {{ pressed_entity == button2_event and event_type == long_press_release_event_type }}
-        sequence: !input button2_long_release_action
+        sequence:
+          - choose: []
+            default: !input button2_long_release_action
 
     default: []
